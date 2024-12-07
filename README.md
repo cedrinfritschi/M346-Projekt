@@ -8,7 +8,7 @@ This repository was created for a school project. We had to create an IaC that s
 Dieses Repository wurde für ein Schulprojekt erstellt. Wir mussten eine IaC erstellen, die zwei EC2-Instanzen bereitstellt, von denen eine eine Datenbank hostet und die andere ein CMS. Wir haben WordPress als unser CMS und MySQL als unser DBMS gewählt.
 
 ## User Guide
-This is a quick explanation on how to use the scripts.
+This is a quick explanation on how to use the scripts. For a more detailed guide and explanation, visit the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN))
 
 1. Make sure your AWS credentials and config are correct and up to date. (Check out the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN)) for more info)
 ```bash
@@ -44,7 +44,6 @@ The documentation is on this repository's Wiki and conains:
 - How to setup your AWS credentials
 - How to use the scripts
 - What each section of the code is doing
-- Project-reflection of each team member
 
 ## Tests
 Our team has went through some test cases to make sure that everything works as expected.
