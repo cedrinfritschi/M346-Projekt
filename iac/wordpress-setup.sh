@@ -10,7 +10,7 @@ exec > >(tee /var/log/user-data.log | logger -t user-data) 2>&1
 
 # Install wordpress dependencies
 apt-get update
-apt-get install -y apache2 unzip ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml php-zip curl
+apt-get install -y apache2 unzip ghostscript libapache2-mod-php php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml php-zip curl
 
 # Make web root directory if not exists
 mkdir /var/www/html -p
@@ -48,8 +48,7 @@ a2ensite default-ssl
 systemctl restart apache2
 systemctl enable apache2
 
-#################################### Database Setup
-
+#################################### Wordpress Installation
 # Get the public IP address of the server from EC2 Metadata Service
 PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
 
@@ -57,21 +56,12 @@ PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
 DB_NAME="wordpress"
 DB_USER="wp-user"
 DB_PASSWORD="n3v3r_g0nn4_g1v3_y0u_up"
-DB_HOST="localhost"
+DB_HOST="18.205.29.54"
 SITE_URL="http://$PUBLIC_IP"
 SITE_TITLE="M365 - WE DID IT!"
 ADMIN_USER="mr_secret_admin"
 ADMIN_PASSWORD="n3v3r_g0nn4_l3t_Y0u_D0wn"
 ADMIN_EMAIL="never_gonna_run_around@and-hurt-you.com"
-
-# Create Database and the DB User
-mysql -e "CREATE DATABASE $DB_NAME;"
-mysql -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
-mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
-
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'd0nth4ckm3_pl34s3_i_@m_b3gG!ng_u';" # Secure root's password
-#################################### Wordpress Installation
 
 # Configure wp-config.php
 cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
@@ -88,9 +78,8 @@ mv wp-cli.phar /usr/local/bin/wp
 # Install Wordpress
 /usr/local/bin/wp core install --url="$SITE_URL" --title="$SITE_TITLE" --admin_user="$ADMIN_USER" --admin_password="$ADMIN_PASSWORD" --admin_email="$ADMIN_EMAIL" --path="/var/www/html" --allow-root
 /usr/local/bin/wp theme install blockstarter --activate --path="/var/www/html" --allow-root
-#/usr/local/bin/wp theme mod set global_styles dark --path=/var/www/html --allow-root
 
-# Hide folders
+# Hide Directory listing
 touch /var/www/html/wp-content/uploads/index.html
 touch /var/www/html/wp-content/themes/blockstarter/index.html
 
