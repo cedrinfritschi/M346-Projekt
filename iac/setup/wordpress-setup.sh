@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# 2024-12-06
-
 #################################### Prepration
 
 # Enable loggin
@@ -56,7 +54,7 @@ PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
 DB_NAME="wordpress"
 DB_USER="wp-user"
 DB_PASSWORD="n3v3r_g0nn4_g1v3_y0u_up"
-DB_HOST="18.205.29.54"
+DB_HOST="<placeholder>"
 SITE_URL="http://$PUBLIC_IP"
 SITE_TITLE="M365 - WE DID IT!"
 ADMIN_USER="mr_secret_admin"

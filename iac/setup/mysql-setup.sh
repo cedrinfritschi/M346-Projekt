@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# 2024-12-06
-
 # Enable loggin
 set -e
 exec > >(tee /var/log/user-data.log | logger -t user-data) 2>&1
@@ -25,7 +23,7 @@ mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'd0nth4ckm3_pl34s3_i_@m_b3
 
 # Configure MySQL
 sed -i "s/bind-address.*/bind-address=0\.0\.0\.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf
-sed -i "s/mysqlx-bind-address.*/bind-address=0\.0\.0\.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i "s/mysqlx-bind-address.*/mysqlx-bind-address=0\.0\.0\.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 # Restart MySQL service
 systemctl restart mysql
