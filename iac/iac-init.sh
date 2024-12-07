@@ -1,4 +1,4 @@
-#|/bin/bash
+#!/bin/bash
 
 ################################### Install AWSCLI if not installed
 echo "[+] Checking if 'awscli' is installed..."
