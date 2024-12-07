@@ -10,7 +10,7 @@ Dieses Repository wurde für ein Schulprojekt erstellt. Wir mussten eine IaC ers
 ## User Guide
 This is a quick explanation on how to use the scripts.
 
-1. Make sure your AWS credentials and config are correct and up to date. (Check out the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/Docs-(EN)) for more info)
+1. Make sure your AWS credentials and config are correct and up to date. (Check out the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN)) for more info)
 ```bash
 cat ~/.aws/credentials
 cat ~/.aws/config
@@ -19,7 +19,7 @@ cat ~/.aws/config
 ```bash
 git clone https://github.com/cedrinfritschi/M346-Projekt.git
 ```
-3. Move to the `M346-Projekt/iac` folder
+3. Move to the `M346-Projekt/iac` directory
 ```bash
 cd M346-Projekt/iac
 ```
@@ -37,8 +37,8 @@ chmod +x ./iac-init.sh ./iac-clean.sh
 ```
 ## Documentation
 Our team has provided detailed explanation about what the scripts are doing in both English and German.
-- ![Docs (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Docs-(DE))
-- ![Docs (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Docs-(EN))
+- ![Docs (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/1.-Docs-(DE))
+- ![Docs (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN))
 
 The documentation is on this repository's Wiki and conains:
 - How to setup your AWS credentials
@@ -50,8 +50,8 @@ The documentation is on this repository's Wiki and conains:
 Our team has went through some test cases to make sure that everything works as expected.
 
 These are of course documented as well in both English and German. They are available on the Wiki.
-- ![Tests (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Tests-(DE))
-- ![Tests (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Tests-(EN))
+- ![Tests (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/3.-Tests-(DE))
+- ![Tests (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/4.-Tests-(EN))
 
 ## Project reflection
 Our team has provided a project reflection. This includes things like:
@@ -60,5 +60,5 @@ Our team has provided a project reflection. This includes things like:
 - Things to keep in mind for another project like this one
 
 You will also find this on the Wiki:
-- ![Reflection (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Reflection-(DE))
-- ![Reflection (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/Reflection-(EN))
+- ![Reflection (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/5.-Reflection-(DE))
+- ![Reflection (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/6.-Reflection-(EN))
