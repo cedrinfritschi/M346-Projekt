@@ -1,108 +1,102 @@
-#|/bin/bash
-
-KEY_NAME="wordpress-key"
-
-# Security-Gruppe erzeugen
-SECGROUP_ID=`aws ec2 create-security-group \
---group-name 'wordpress-sg' \
---description "apache security group" \
---query GroupId \
---output text`
-
-echo "Creating key pair..."
-aws ec2 create-key-pair --key-name $KEY_NAME --query 'KeyMaterial' --output text > $KEY_NAME.pem
-chmod 400 $KEY_NAME.pem
-
-# Port 80 öffnen
-NO_OUTPUT=`aws ec2 authorize-security-group-ingress \
---group-id $SECGROUP_ID \
---ip-permissions IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=0.0.0.0/0}]'`
-
-# Port 22 öffnen
-NO_OUTPUT=`aws ec2 authorize-security-group-ingress \
---group-id $SECGROUP_ID \
---ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges='[{CidrIp=0.0.0.0/0}]'`
-
-# EC2-Instanz erzeugen, Apache Webserver installieren
-INSTANCE_ID=`aws ec2 run-instances \
---image-id ami-08c40ec9ead489470 --count 1 \
---instance-type t2.micro \
---security-groups wordpress-sg \
---iam-instance-profile Name=LabInstanceProfile \
---key-name $KEY_NAME \
---user-data '#!/bin/bash
-    sudo apt-get update
-    sudo apt-get install -y apache2 unzip ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml php-zip
-    sudo mkdir /var/www/html -p
-    sudo wget "https://wordpress.org/latest.zip" -O /var/www/html/latest.zip
-    sudo unzip /var/www/html/latest.zip
-    sudo rm /var/www/html/latest.zip
-    sudo systemctl restart apache2
-    sudo systemctl enable apache2' \
---query 'Instances[*].InstanceId' \
---output text`
-
-echo "Waiting for the instance to start..."
-aws ec2 wait instance-running --instance-ids $INSTANCE_ID --region us-east-1
-
-SSH_COMMANDS=$(cat << 'EOF'
 #!/bin/bash
-# Update system
-sudo apt update && sudo apt upgrade -y
 
-# Install Apache, MySQL, PHP
-sudo apt install -y apache2 mysql-server php php-mysql libapache2-mod-php php-cli php-cgi php-gd wget unzip libapache2-mod-wsgi python-dev
+# 2024-12-06
 
-sudo a2enmod wsgi
-sudo systemctl reload apache2
+#################################### Prepration
 
-# Secure MySQL
-sudo mysql_secure_installation
+# Enable loggin
+set -e
+exec > >(tee /var/log/user-data.log | logger -t user-data) 2>&1
 
-# Create MySQL Database and User
-DB_NAME="wordpress_db"
-DB_USER="wordpress_user"
-DB_PASSWORD="password"
+# Install wordpress dependencies
+apt-get update
+apt-get install -y apache2 unzip ghostscript libapache2-mod-php mysql-server php php-bcmath php-curl php-imagick php-intl php-json php-mbstring php-mysql php-xml php-zip curl
 
-sudo mysql -u root <<END
-CREATE DATABASE $DB_NAME;
-CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';
-FLUSH PRIVILEGES;
-END
+# Make web root directory if not exists
+mkdir /var/www/html -p
 
-# Download and set up WordPress
-wget https://wordpress.org/latest.tar.gz
-tar -xvzf latest.tar.gz
-sudo mv wordpress /var/www/html/
-sudo chown -R www-data:www-data /var/www/html/wordpress
-sudo chmod -R 755 /var/www/html/wordpress
+# Download wordpress
+wget "https://wordpress.org/latest.zip" -O /var/www/html/latest.zip
 
-# Configure Apache for WordPress
-sudo cat <<END > /etc/apache2/sites-available/wordpress.conf
-<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html/wordpress
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-END
+# Decompress the downloaded file
+unzip /var/www/html/latest.zip -d /var/www/html
 
-sudo a2ensite wordpress.conf
-sudo a2enmod rewrite
-sudo systemctl restart apache2
+# Move the contents to the web root
+mv /var/www/html/wordpress/* /var/www/html/
 
-echo "WordPress installation completed. Please configure via web browser."
-EOF
-)
+# Get rid of the zip file and the default Apache page
+rm /var/www/html/latest.zip /var/www/html/index.html
 
-# Public-IP ermitteln
-PUBLIC_IP=`aws ec2 describe-instances \
---filters Name=instance-id,Values=$INSTANCE_ID \
---query 'Reservations[*].Instances[*].[PublicIpAddress]' \
---output text`
+# Hand over ownership to www-data
+chown www-data:www-data /var/www/html -R
+chmod 755 /var/www/html -R #rwxr-xr-x
 
-echo "$SSH_COMMANDS" | ssh -o "StrictHostKeyChecking=no" -i "wordpress-key.pem" ubuntu@$PUBLIC_IP
+# Enable Apache modules
+a2enmod ssl
+a2enmod rewrite
 
-# URL ausgeben
-echo "http://$PUBLIC_IP"
+# Create a self-signed certificate (not safe but it's okay, it's a school project... XD YAWN)
+mkdir -p /etc/apache2/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/apache2/ssl/apache-selfsigned.key \
+    -out /etc/apache2/ssl/apache-selfsigned.crt \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=example.com"
+
+a2ensite default-ssl
+
+# Restart services
+systemctl restart apache2
+systemctl enable apache2
+
+#################################### Database Setup
+
+# Get the public IP address of the server from EC2 Metadata Service
+PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+
+# Inisialization
+DB_NAME="wordpress"
+DB_USER="wp-user"
+DB_PASSWORD="n3v3r_g0nn4_g1v3_y0u_up"
+DB_HOST="localhost"
+SITE_URL="http://$PUBLIC_IP"
+SITE_TITLE="M365 - WE DID IT!"
+ADMIN_USER="mr_secret_admin"
+ADMIN_PASSWORD="n3v3r_g0nn4_l3t_Y0u_D0wn"
+ADMIN_EMAIL="never_gonna_run_around@and-hurt-you.com"
+
+# Create Database and the DB User
+mysql -e "CREATE DATABASE $DB_NAME;"
+mysql -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+mysql -e "FLUSH PRIVILEGES;"
+
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'd0nth4ckm3_pl34s3_i_@m_b3gG!ng_u';" # Secure root's password
+#################################### Wordpress Installation
+
+# Configure wp-config.php
+cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+sed -i "s/database_name_here/$DB_NAME/" /var/www/html/wp-config.php
+sed -i "s/username_here/$DB_USER/" /var/www/html/wp-config.php
+sed -i "s/password_here/$DB_PASSWORD/" /var/www/html/wp-config.php
+sed -i "s/localhost/$DB_HOST/" /var/www/html/wp-config.php
+
+# Download WP-CLI to install Wordpress with it
+wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
+# Install Wordpress
+/usr/local/bin/wp core install --url="$SITE_URL" --title="$SITE_TITLE" --admin_user="$ADMIN_USER" --admin_password="$ADMIN_PASSWORD" --admin_email="$ADMIN_EMAIL" --path="/var/www/html" --allow-root
+/usr/local/bin/wp theme install blockstarter --activate --path="/var/www/html" --allow-root
+#/usr/local/bin/wp theme mod set global_styles dark --path=/var/www/html --allow-root
+
+# Hide folders
+touch /var/www/html/wp-content/uploads/index.html
+touch /var/www/html/wp-content/themes/blockstarter/index.html
+
+# Customize index page
+sed -i 's/Blockstarter/M365 - Project/g' /var/www/html/wp-content/themes/blockstarter/patterns/01-header-image.php
+sed -i 's/Experience the magic of full site editing/Ali Jonaghi - Cedrin Fritschi - Sonam Federer/g' /var/www/html/wp-content/themes/blockstarter/patterns/01-header-image.php
+
+# Restart Apache service
+systemctl restart apache2
