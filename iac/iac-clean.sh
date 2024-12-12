@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Initialize colors
+YELLOW="\033[33m"
+RED="\033[31m"
+GREEN="\033[32m"
+BLUE="\033[34m"
+COLOR_END="\033[0m"
+
 set -e
 
 # Variables
@@ -10,7 +17,7 @@ WORDPRESS_SECURITY_GROUP="wordpress-sg"
 
 # Function to terminate all running instances
 terminate_all_instances() {
-    echo "[i] Finding all running instances to terminate..."
+    echo -e "$YELLOW[i]$COLOR_END Finding all running instances to terminate..."
 
     # Get all running instances
     INSTANCE_IDS=$(aws ec2 describe-instances \
@@ -19,13 +26,13 @@ terminate_all_instances() {
         --output text --region $REGION)
 
     if [ -z "$INSTANCE_IDS" ]; then
-        echo "[!] No running instances found. Skipping termination."
+        echo -e "$YELLOW[!]$COLOR_END No running instances found. Skipping termination."
     else
-        echo "[+] Terminating instances: $INSTANCE_IDS"
+        echo -e "$GREEN[+]$COLOR_END Terminating instances: $INSTANCE_IDS"
         aws ec2 terminate-instances --instance-ids $INSTANCE_IDS --region $REGION
-        echo "[i] Waiting for instances to terminate..."
+        echo -e "$YELLOW[i]$COLOR_END Waiting for instances to terminate..."
         aws ec2 wait instance-terminated --instance-ids $INSTANCE_IDS --region $REGION
-        echo "[+] Instances terminated successfully."
+        echo -e "$GREEN[+]$COLOR_END Instances terminated successfully."
     fi
 }
 
@@ -33,7 +40,7 @@ terminate_all_instances() {
 delete_security_group() {
     local SECURITY_GROUP_NAME=$1
 
-    echo "[i] Attempting to delete security group: $SECURITY_GROUP_NAME"
+    echo -e "$YELLOW[i]$COLOR_END Attempting to delete security group: $SECURITY_GROUP_NAME"
 
     # Get the security group ID
     SG_ID=$(aws ec2 describe-security-groups \
@@ -42,7 +49,7 @@ delete_security_group() {
         --output text --region $REGION)
 
     if [ -z "$SG_ID" ]; then
-        echo "[!] Security group $SECURITY_GROUP_NAME does not exist. Skipping."
+        echo -e "$YELLOW[!]$COLOR_END Security group $SECURITY_GROUP_NAME does not exist. Skipping."
         return
     fi
 
@@ -52,37 +59,37 @@ delete_security_group() {
         --query 'NetworkInterfaces[*].NetworkInterfaceId' --output text --region $REGION)
 
     if [ -n "$DEPENDENCIES" ]; then
-        echo "[!] Security group $SECURITY_GROUP_NAME has dependencies. Cleaning up dependencies..."
+        echo -e "$YELLOW[!]$COLOR_END Security group $SECURITY_GROUP_NAME has dependencies. Cleaning up dependencies..."
         for NI in $DEPENDENCIES; do
-            echo "[i]Identifying resource using network interface $NI..."
+            echo -e "$YELLOW[i]$COLOR_END Identifying resource using network interface $NI..."
             ATTACHMENT_ID=$(aws ec2 describe-network-interfaces --network-interface-ids $NI --query "NetworkInterfaces[0].Attachment.AttachmentId" --output text)
 
             if [ "$ATTACHMENT_ID" != "None" ]; then
-                echo "[+] Detaching network interface $NI (Attachment ID: $ATTACHMENT_ID)..."
+                echo -e "$GREEN[+]$COLOR_END Detaching network interface $NI (Attachment ID: $ATTACHMENT_ID)..."
                 aws ec2 detach-network-interface --attachment-id $ATTACHMENT_ID --region $REGION
             fi
 
-            echo "[+] Deleting network interface $NI..."
+            echo -e "$GREEN[+]$COLOR_END Deleting network interface $NI..."
             aws ec2 delete-network-interface --network-interface-id $NI --region $REGION
         done
     fi
 
-    echo "[i] Deleting security group $SECURITY_GROUP_NAME (ID: $SG_ID)..."
+    echo -e "$YELLOW[i]$COLOR_END Deleting security group $SECURITY_GROUP_NAME (ID: $SG_ID)..."
     aws ec2 delete-security-group --group-id $SG_ID --region $REGION
-    echo "[+] Security group $SECURITY_GROUP_NAME deleted successfully."
+    echo -e "$GREEN[+]$COLOR_END Security group $SECURITY_GROUP_NAME deleted successfully."
 }
 
 # Function to delete key pair
 delete_key_pair() {
-    echo "[i] Deleting key pair $KEY_NAME..."
+    echo -e "$YELLOW[i]$COLOR_END Deleting key pair $KEY_NAME..."
     aws ec2 delete-key-pair --key-name $KEY_NAME --region $REGION
 
     if [ -f "$KEY_NAME.pem" ]; then
         rm -f "$KEY_NAME.pem"
-        echo "[+] Local key file $KEY_NAME.pem removed."
+        echo -e "$GREEN[+]$COLOR_END Local key file $KEY_NAME.pem removed."
     fi
 
-    echo "[+] Key pair $KEY_NAME deleted successfully."
+    echo -e "$GREEN[+]$COLOR_END Key pair $KEY_NAME deleted successfully."
 }
 
 # Run cleanup steps
@@ -94,5 +101,4 @@ delete_key_pair
 sed -i "s/DB_HOST=.*/DB_HOST=\"<placeholder>\"/g" ./setup/wordpress-setup.sh
 
 echo
-echo "[::] Cleanup process completed successfully!"
-
+echo -e "$GREEN[::]$COLOR_END Cleanup process completed successfully!"
