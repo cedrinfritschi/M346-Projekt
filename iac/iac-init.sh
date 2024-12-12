@@ -1,29 +1,36 @@
 #!/bin/bash
 
-################################### Install AWSCLI if not installed
-echo "[+] Checking if 'awscli' is installed..."
+# Initialize colors
+YELLOW="\033[33m"
+RED="\033[31m"
+GREEN="\033[32m"
+BLUE="\033[34m"
+COLOR_END="\033[0m"
 
-awscli_installed=$(dpkg-query -s awscli 2>/dev/null)
+################################### Install AWSCLI if not installed
+echo -ne "$YELLOW[i]$COLOR_END Checking if 'awscli' is installed...\r"
+
+awscli_installed=$(which aws)
 if [ -z "$awscli_installed" ]; then
-	read -p "[?] The package 'awscli' needs to be installed. Continue? [Y/n] " install_awscli
+	read -p $'\e[34m[?]\e[0m The package "awscli" needs to be installed. Continue? [Y/n] ' install_awscli
 	case "$install_awscli" in
 		[Yy] | "" )
 			sudo apt update;
 			sudo apt install awscli -y;
 			clear;
-			echo "[i] You now have to configure AWSCLI. Refere to this repo's wiki for any questions.";
+			echo -e "\e[K$YELLOW[i]$COLOR_END You now have to configure AWSCLI. Refere to this repo's wiki for any questions.";
 			aws configure;;
-		* ) echo "[X] Cannot continue without 'awscli'."; exit 1;;
+		* ) echo -e "$RED[X]$COLOR_END Cannot continue without 'awscli'."; exit 1;;
 	esac
 else
-	echo "[+] OK"
+	echo -e "\e[K$GREEN[+]$COLOR_END Checking if 'awscli' is installed... $GREEN[OK]$COLOR_END"
 fi
 
 #################################### Security groups setup
 # Initialization
 KEY_NAME="private_key"
 
-echo "[+] Creating 'wordpress-sg' security group..."
+echo -ne "$YELLOW[i]$COLOR_END Creating 'wordpress-sg' security group...\r"
 # Security-Gruppe erzeugen
 WORDPRESS_SG_ID=`aws ec2 create-security-group \
 --group-name 'wordpress-sg' \
@@ -46,7 +53,9 @@ NO_OUTPUT=`aws ec2 authorize-security-group-ingress \
 --group-id $WORDPRESS_SG_ID \
 --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges='[{CidrIp=0.0.0.0/0}]'`
 
-echo "[+] Creating 'mysql-sg' security group..."
+echo -e "\e[K$GREEN[+]$COLOR_END Creating 'wordpress-sg' security group... $GREEN[OK]$COLOR_END"
+
+echo -ne "$YELLOW[i]$COLOR_END Creating 'mysql-sg' security group...\r"
 # Security-Gruppe erzeugen
 MYSQL_SG_ID=`aws ec2 create-security-group \
 --group-name 'mysql-sg' \
@@ -64,11 +73,15 @@ NO_OUTPUT=`aws ec2 authorize-security-group-ingress \
 --group-id $MYSQL_SG_ID \
 --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges='[{CidrIp=0.0.0.0/0}]'`
 
+echo -e "\e[K$GREEN[+]$COLOR_END Creating 'mysql-sg' security group... $GREEN[OK]$COLOR_END"
+
 ########################################## Start Instances
 
-echo "[+] Creating key pair..."
+echo -ne "$YELLOW[i]$COLOR_END Creating key pair...\r"
 aws ec2 create-key-pair --key-name $KEY_NAME --query 'KeyMaterial' --output text > $KEY_NAME.pem
 chmod 400 $KEY_NAME.pem
+
+echo -e "\e[K$GREEN[+]$COLOR_END Creating key pair... $GREEN[OK]$COLOR_END"
 
 # Run an EC2-Instance to host the database
 DATABASE_INSTANCE_ID=`aws ec2 run-instances \
@@ -81,9 +94,11 @@ DATABASE_INSTANCE_ID=`aws ec2 run-instances \
 --query 'Instances[*].InstanceId' \
 --output text`
 
-echo "[i] Waiting for the Database instance to start..."
+echo -ne "$YELLOW[i]$COLOR_END Waiting for the database instance to start...\r"
+
 aws ec2 wait instance-running --instance-ids $DATABASE_INSTANCE_ID --region 'us-east-1'
-echo "[+] OK"
+
+echo -e "\e[K$GREEN[+]$COLOR_END Waiting for the database instance to start... $GREEN[OK]$COLOR_END"
 
 # Find the database server's public IP address
 DATABASE_PUBLIC_IP=`aws ec2 describe-instances \
@@ -104,9 +119,9 @@ WORDPRESS_INSTANCE_ID=`aws ec2 run-instances \
 --query 'Instances[*].InstanceId' \
 --output text`
 
-echo "[i] Waiting for the Wordpress instance to start..."
+echo -ne "$YELLOW[i]$COLOR_END Waiting for the Wordpress instance to start...\r"
 aws ec2 wait instance-running --instance-ids $WORDPRESS_INSTANCE_ID --region 'us-east-1'
-echo "[+] OK"
+echo -e "\e[K$GREEN[+]$COLOR_END Waiting for the Wordpress instance to start... $GREEN[OK]$COLOR_END"
 
 # Public-IP ermitteln
 WORDPRESS_PUBLIC_IP=`aws ec2 describe-instances \
@@ -115,18 +130,26 @@ WORDPRESS_PUBLIC_IP=`aws ec2 describe-instances \
 --output text`
 
 ########################################## Print out results
-echo "[+] Init done."
+echo -e "$GREEN[+]$COLOR_END Init done."
 echo
 
+# Function to calculate the visible length of a string (excluding color codes)
+visible_length() {
+    local string_no_color=$(echo -e "$1" | sed -E 's/\x1b\[[0-9;]*m//g') # Remove color codes
+    echo "${#string_no_color}" # Return the length of the cleaned string
+}
 
-# Function to create a table row
+# Function to create a table row with alignment
 print_row() {
-    printf "| %-*s |\n" $((TABLE_WIDTH - 4)) "$1"
+    local content="$1"
+    local content_length=$(visible_length "$content") # Get the visible length of the content
+    local padding=$((TABLE_WIDTH - content_length - 4)) # Calculate padding dynamically
+    echo -e "| $content$(printf ' %.0s' $(seq 1 $padding)) |"
 }
 
 # Function to create a separator line
 print_separator() {
-    printf "+%s+\n" "$(printf -- "-%.0s" $(seq 1 $((TABLE_WIDTH - 2))))"
+    echo -e "+$(printf -- '-%.0s' $(seq 1 $((TABLE_WIDTH - 2))))+"
 }
 
 # Table width (adjust as needed)
@@ -134,17 +157,17 @@ TABLE_WIDTH=75
 
 # Print the table
 print_separator
-print_row "Deployment Summary"
+print_row "$GREEN Deployment Summary$COLOR_END"
 print_separator
-print_row "[::] Instances public IP addresses"
-print_row "     - WordPress: $WORDPRESS_PUBLIC_IP"
-print_row "     - MySQL    : $DATABASE_PUBLIC_IP"
+print_row "$GREEN[::]$COLOR_END Instances public IP addresses"
+print_row "     - WordPress:$BLUE $WORDPRESS_PUBLIC_IP $COLOR_END"
+print_row "     - MySQL    :$BLUE $DATABASE_PUBLIC_IP $COLOR_END"
 print_separator
-print_row "[::] Visit the following URLs (after 2-5 minutes):"
-print_row "     - http://$WORDPRESS_PUBLIC_IP"
-print_row "     - https://$WORDPRESS_PUBLIC_IP (self-signed certificate)"
+print_row "$GREEN[::]$COLOR_END Visit the following URLs $RED(after 2-5 minutes)$COLOR_END:"
+print_row "     - $BLUE http://$WORDPRESS_PUBLIC_IP $COLOR_END"
+print_row "     - $BLUE https://$WORDPRESS_PUBLIC_IP $COLOR_END $YELLOW(self-signed certificate)$COLOR_END"
 print_separator
-print_row "[::] SSH to the server:"
-print_row "     - WordPress: ssh ubuntu@$WORDPRESS_PUBLIC_IP -i ./$KEY_NAME.pem"
-print_row "     - MySQL    : ssh ubuntu@$DATABASE_PUBLIC_IP -i ./$KEY_NAME.pem"
+print_row "$GREEN[::]$COLOR_END SSH to the server:"
+print_row "     - WordPress: ssh ubuntu@$BLUE$WORDPRESS_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
+print_row "     - MySQL    : ssh ubuntu@$BLUE$DATABASE_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
 print_separator
