@@ -15,7 +15,7 @@ This is a quick explanation on how to use the scripts. For a more detailed guide
 cat ~/.aws/credentials
 cat ~/.aws/config
 ```
-2. Clone the reposiroty locally.
+2. Clone the repository locally.
 ```bash
 git clone https://github.com/cedrinfritschi/M346-Projekt.git
 ```
