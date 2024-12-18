@@ -40,7 +40,7 @@ Our team has provided detailed explanation about what the scripts are doing in b
 - ![Docs (DE)](https://github.com/cedrinfritschi/M346-Projekt/wiki/1.-Docs-(DE))
 - ![Docs (EN)](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN))
 
-The documentation is on this repository's Wiki and conains:
+The documentation is on this repository's Wiki and contains:
 - How to setup your AWS credentials
 - How to use the scripts
 - What each section of the code is doing
