@@ -81,9 +81,20 @@ echo -e "\e[K$GREEN[+]$COLOR_END Creating 'mysql-sg' security group... $GREEN[OK
 
 echo -ne "$YELLOW[i]$COLOR_END Creating key pair...\r"
 aws ec2 create-key-pair --key-name $KEY_NAME --query 'KeyMaterial' --output text > $KEY_NAME.pem
-chmod 400 $KEY_NAME.pem
-
+chmod 600 $KEY_NAME.pem
 echo -e "\e[K$GREEN[+]$COLOR_END Creating key pair... $GREEN[OK]$COLOR_END"
+
+# Ask user wether to symmetrically encrypt their private-key
+read -p $'\e[34m[?]\e[0m Do you want to protect your private key with a password? [y/N] ' protect_key
+
+case "$protect_key" in
+	[Yy] )
+		ssh-keygen -p -f "./$KEY_NAME.pem";
+		echo -e "$GREEN[+]$COLOR_END The private key is now secured with a password!";
+		;;
+	* )
+		echo -e "$YELLOW[!]$COLOR_END Skipping key protection..."
+esac
 
 # Run an EC2-Instance to host the database
 DATABASE_INSTANCE_ID=`aws ec2 run-instances \
@@ -170,6 +181,6 @@ print_row "     - $BLUE http://$WORDPRESS_PUBLIC_IP $COLOR_END"
 print_row "     - $BLUE https://$WORDPRESS_PUBLIC_IP $COLOR_END $YELLOW(self-signed certificate)$COLOR_END"
 print_separator
 print_row "$GREEN[::]$COLOR_END SSH to the server:"
-print_row "     - WordPress: ssh ubuntu@$BLUE$WORDPRESS_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
-print_row "     - MySQL    : ssh ubuntu@$BLUE$DATABASE_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
+print_row "     - WordPress: ssh$BLUE ubuntu@$WORDPRESS_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
+print_row "     - MySQL    : ssh$BLUE ubuntu@$DATABASE_PUBLIC_IP$COLOR_END -i ./$KEY_NAME.pem"
 print_separator

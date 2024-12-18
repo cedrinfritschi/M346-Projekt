@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###########################
+# Author: Cedrin Fritschi #
+###########################
+
 # Enable loggin
 set -e
 exec > >(tee /var/log/user-data.log | logger -t user-data) 2>&1
