@@ -10,7 +10,7 @@ Dieses Repository wurde für ein Schulprojekt erstellt. Wir mussten eine IaC ers
 ## User Guide
 This is a quick explanation on how to use the scripts. For a more detailed guide and explanation, visit the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN))
 
-1. Make sure your AWS credentials and config are correct and up to date. (Check out the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN)) for more info)
+1. Make sure your AWS credentials and config are correct and up to date. (Check out the ![Wiki](https://github.com/cedrinfritschi/M346-Projekt/wiki/2.-Docs-(EN)#aws-credentials) for more info)
 ```bash
 cat ~/.aws/credentials
 cat ~/.aws/config
