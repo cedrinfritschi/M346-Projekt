@@ -16,7 +16,9 @@ if [ -z "$awscli_installed" ]; then
 	case "$install_awscli" in
 		[Yy] | "" )
 			sudo apt update;
-			sudo apt install awscli -y;
+			curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o ~/awscliv2.zip;
+			unzip ~/awscliv2.zip -d ~;
+			sudo ~/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
 			clear;
 			echo -e "\e[K$YELLOW[i]$COLOR_END You now have to configure AWSCLI. Refere to this repo's wiki for any questions.";
 			aws configure;;
