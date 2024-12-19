@@ -18,11 +18,24 @@ if [ -z "$awscli_installed" ]; then
 			sudo apt update;
 			curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o ~/awscliv2.zip;
 			unzip ~/awscliv2.zip -d ~;
-			sudo ~/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+			sudo ~/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update;
 			clear;
 			echo -e "\e[K$YELLOW[i]$COLOR_END You now have to configure AWSCLI. Refere to this repo's wiki for any questions.";
-			aws configure;;
-		* ) echo -e "$RED[X]$COLOR_END Cannot continue without 'awscli'."; exit 1;;
+			mkdir -p ~/.aws;
+			read -p "AWS Access Key ID: " aws_access_key_id;
+			read -p "AWS Secret Access Key: " aws_secret_access_key;
+			read -p "AWS Session token: " aws_session_token;
+			read -p "Default region name: " aws_default_region_name;
+			read -p "Default output format: " aws_default_output_format;
+			echo -e "[default]\nregion = $aws_default_region_name\noutput = $aws_default_output_format" > ~/.aws/config;
+			echo -e "[default]\naws_access_key_id = $aws_access_key_id\naws_secret_access_key = $aws_secret_access_key\naws_session_token = $aws_session_token" > ~/.aws/credentials
+			clear;
+			echo -e "$GREEN[+]$COLOR_END AWSCLI was configured successfully!";
+			;;
+		* )
+			echo -e "$RED[X]$COLOR_END Cannot continue without 'awscli'.";
+			exit 1
+			;;
 	esac
 else
 	echo -e "\e[K$GREEN[+]$COLOR_END Checking if 'awscli' is installed... $GREEN[OK]$COLOR_END"
