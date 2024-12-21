@@ -2,7 +2,7 @@
 <a href="https://github.com/cedrinfritschi/M346-Projekt">![Repo-size](https://img.shields.io/github/repo-size/cedrinfritschi/M346-Projekt?style=flat-square&color=%23fa0ce2)</a>
 <a href="https://github.com/cedrinfritschi/M346-Projekt/graphs/contributors">![Contributors](https://img.shields.io/github/contributors/cedrinfritschi/M346-Projekt?style=flat-square&color=%236804ba)</a>
 
-# M365-Projekt
+# M346-Projekt
 This repository was created for a school project. We had to create an IaC that spins up two EC2 instances with one of them hosting a database and the other a CMS. We chose WordPress as our CMS and MySQL as our DBMS.
 
 Dieses Repository wurde für ein Schulprojekt erstellt. Wir mussten eine IaC erstellen, die zwei EC2-Instanzen bereitstellt, von denen eine eine Datenbank hostet und die andere ein CMS. Wir haben WordPress als unser CMS und MySQL als unser DBMS gewählt.

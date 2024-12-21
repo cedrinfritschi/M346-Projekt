@@ -4,8 +4,20 @@
 YELLOW="\033[33m"
 RED="\033[31m"
 GREEN="\033[32m"
-BLUE="\033[34m"
+BLUE="\033[94m"
+MAGENTA="\033[95m"
 COLOR_END="\033[0m"
+
+# Print banner
+echo -e "$MAGENTA █████            $MAGENTA█████████$COLOR_END"
+echo -e "$MAGENTA░░███            $MAGENTA███░░░░░███$COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE  ██████  $MAGENTA███  $BLUE M $MAGENTA░░░ $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE ░░░░░███$MAGENTA░███  $BLUE 3 $MAGENTA       $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE  ███████$MAGENTA░███  $BLUE 6 $MAGENTA       $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE ███░░███$MAGENTA░░███ $BLUE 5 $MAGENTA ███$COLOR_END"
+echo -e "$MAGENTA █████$BLUE░░████████$MAGENTA░░█████████$COLOR_END"
+echo -e "$MAGENTA░░░░░ $BLUE ░░░░░░░░$MAGENTA  ░░░░░░░░░$COLOR_END"
+echo
 
 set -e
 

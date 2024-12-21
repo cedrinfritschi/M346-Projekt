@@ -4,8 +4,20 @@
 YELLOW="\033[33m"
 RED="\033[31m"
 GREEN="\033[32m"
-BLUE="\033[34m"
+BLUE="\033[94m"
+MAGENTA="\033[95m"
 COLOR_END="\033[0m"
+
+# Print banner
+echo -e "$MAGENTA █████            $MAGENTA█████████$COLOR_END"
+echo -e "$MAGENTA░░███            $MAGENTA███░░░░░███$COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE  ██████  $MAGENTA███  $BLUE M $MAGENTA░░░ $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE ░░░░░███$MAGENTA░███  $BLUE 3 $MAGENTA       $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE  ███████$MAGENTA░███  $BLUE 6 $MAGENTA       $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE ███░░███$MAGENTA░░███ $BLUE 5 $MAGENTA ███$COLOR_END"
+echo -e "$MAGENTA █████$BLUE░░████████$MAGENTA░░█████████$COLOR_END"
+echo -e "$MAGENTA░░░░░ $BLUE ░░░░░░░░$MAGENTA  ░░░░░░░░░$COLOR_END"
+echo
 
 ################################### Install AWSCLI if not installed
 echo -ne "$YELLOW[i]$COLOR_END Checking if 'awscli' is installed...\r"
@@ -15,11 +27,11 @@ if [ -z "$awscli_installed" ]; then
 	read -p $'\e[34m[?]\e[0m The package "awscli" needs to be installed. Continue? [Y/n] ' install_awscli
 	case "$install_awscli" in
 		[Yy] | "" )
-			sudo apt update;
-			curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o ~/awscliv2.zip;
-			unzip ~/awscliv2.zip -d ~;
+			curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o ~/awscliv2.zip;
+			unzip -qq ~/awscliv2.zip -d ~;
 			sudo ~/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update;
-			clear;
+			rm ~/awscliv2.zip
+			rm -r ~/aws
 			echo -e "\e[K$YELLOW[i]$COLOR_END You now have to configure AWSCLI. Refere to this repo's wiki for any questions.";
 			mkdir -p ~/.aws;
 			read -p "AWS Access Key ID: " aws_access_key_id;
@@ -28,7 +40,7 @@ if [ -z "$awscli_installed" ]; then
 			read -p "Default region name: " aws_default_region_name;
 			read -p "Default output format: " aws_default_output_format;
 			echo -e "[default]\nregion = $aws_default_region_name\noutput = $aws_default_output_format" > ~/.aws/config;
-			echo -e "[default]\naws_access_key_id = $aws_access_key_id\naws_secret_access_key = $aws_secret_access_key\naws_session_token = $aws_session_token" > ~/.aws/credentials
+			echo -e "[default]\naws_access_key_id = $aws_access_key_id\naws_secret_access_key = $aws_secret_access_key\naws_session_token = $aws_session_token" > ~/.aws/credentials;
 			clear;
 			echo -e "$GREEN[+]$COLOR_END AWSCLI was configured successfully!";
 			;;
@@ -189,7 +201,7 @@ print_row "$GREEN[::]$COLOR_END Instances public IP addresses"
 print_row "     - WordPress:$BLUE $WORDPRESS_PUBLIC_IP $COLOR_END"
 print_row "     - MySQL    :$BLUE $DATABASE_PUBLIC_IP $COLOR_END"
 print_separator
-print_row "$GREEN[::]$COLOR_END Visit the following URLs $RED(after 2-5 minutes)$COLOR_END:"
+print_row "$GREEN[::]$COLOR_END Visit the following URLs$RED (after 2-5 minutes)$COLOR_END:"
 print_row "     - $BLUE http://$WORDPRESS_PUBLIC_IP $COLOR_END"
 print_row "     - $BLUE https://$WORDPRESS_PUBLIC_IP $COLOR_END $YELLOW(self-signed certificate)$COLOR_END"
 print_separator
