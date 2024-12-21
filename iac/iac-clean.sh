@@ -13,8 +13,8 @@ echo -e "$MAGENTA █████            $MAGENTA█████████
 echo -e "$MAGENTA░░███            $MAGENTA███░░░░░███$COLOR_END"
 echo -e "$MAGENTA ░███ $BLUE  ██████  $MAGENTA███  $BLUE M $MAGENTA░░░ $COLOR_END"
 echo -e "$MAGENTA ░███ $BLUE ░░░░░███$MAGENTA░███  $BLUE 3 $MAGENTA       $COLOR_END"
-echo -e "$MAGENTA ░███ $BLUE  ███████$MAGENTA░███  $BLUE 6 $MAGENTA       $COLOR_END"
-echo -e "$MAGENTA ░███ $BLUE ███░░███$MAGENTA░░███ $BLUE 5 $MAGENTA ███$COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE  ███████$MAGENTA░███  $BLUE 4 $MAGENTA       $COLOR_END"
+echo -e "$MAGENTA ░███ $BLUE ███░░███$MAGENTA░░███ $BLUE 6 $MAGENTA ███$COLOR_END"
 echo -e "$MAGENTA █████$BLUE░░████████$MAGENTA░░█████████$COLOR_END"
 echo -e "$MAGENTA░░░░░ $BLUE ░░░░░░░░$MAGENTA  ░░░░░░░░░$COLOR_END"
 echo
